@@ -6,19 +6,22 @@ from datetime import datetime
 import models
 
 class BaseModel:
-    """Super Class for upon which models for the AirBnB_clone models derive from
+    """
+    Defines common attributes for all sub classes
     Public
         Instance Properties
             id (uuid): unique id of object
             created_at (datetime): creation time
-            updated_at (datetime): update time 
+            updated_at (datetime): update time
+
             save (def): Updates refrectoring time
             to_dict(def): Serializer/Desirializer
     """
 
     def __init__(self, *args, **kwargs):
         """
-        Initializes objects
+        Initializes objects 
+        Serializes fields into python objects if fields are passed (**kwargs)
         """                    
         if len(kwargs) > 0:
             for k,v in kwargs.items():
@@ -34,12 +37,16 @@ class BaseModel:
             models.storage.new(self)
 
     def save(self):
-        """Updates the public instance attribute; 'updated_at' with current datetime"""
+        """
+        Updates the public instance attribute; 'updated_at' with current datetime
+        """
         self.updated_at = datetime.now()
         models.storage.save()
     
     def to_dict(self):
-        """Returns a dictionary containing all key/value of dict of the instance"""
+        """
+        Deserializes objects' fields to 'simple object types'
+        """
         s_dict = {"__class__": type(self).__name__}
         for k, v in self.__dict__.items():
             if k == "created_at" or k == "updated_at":
