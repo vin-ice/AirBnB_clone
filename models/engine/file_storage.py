@@ -8,6 +8,7 @@ Provides an interface to interact with file system\
 
 from json import dumps, load
 
+
 class FileStorage:
     """Primary interface to file-system storage.\
         Exposes functions to instance for data storing\
@@ -16,15 +17,15 @@ class FileStorage:
             Private:
                 __file_paths (str): Name of file to hold objects
                 __objects (dict): Object representation of all stored data
-        
-        Instance: 
+
+        Instance:
             Public:
             all(self): returns the dictionary: (__objects)
-            new(self, obj): sets obj into local dict(__objects) with a key 
+            new(self, obj): sets obj into local dict(__objects) with a key
             save(self): serializes __objects to JSON file
             reload(self): deserializes the JSON to __objects
     """
-    
+
     __file_path, __objects = "file.json", {}
 
     def all(self):
@@ -47,8 +48,9 @@ class FileStorage:
         Serializes __objects to JSON string values and stores in a json file
         """
         with open(type(self).__file_path, "w", encoding="utf-8") as f:
-            f.write(dumps({k:v.to_dict() for (k,v) in (type(self).__objects).items()}, indent=4))
-       
+            f.write(dumps({k: v.to_dict() for (k, v) in (type(self).__objects)
+                    .items()}, indent=4))
+
     def reload(self):
         """
         Deserializes JSON strings to Model class objects
@@ -61,7 +63,7 @@ class FileStorage:
         from models.amenity import Amenity
         from models.place import Place
         from models.review import Review
-        
+
         try:
             f = open(type(self).__file_path, "r", encoding="utf-8")
             json_dict = load(f)

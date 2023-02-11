@@ -3,7 +3,8 @@
 
 from uuid import uuid4
 from datetime import datetime
-import models
+from models import storage
+
 
 class BaseModel:
     """
@@ -20,11 +21,11 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """
-        Initializes objects 
+        Initializes objects
         Serializes fields into python objects if fields are passed (**kwargs)
-        """                    
+        """
         if len(kwargs) > 0:
-            for k,v in kwargs.items():
+            for k, v in kwargs.items():
                 if k == "__class__":
                     continue
                 if k == "created_at" or k == "updated_at":
@@ -34,15 +35,16 @@ class BaseModel:
             self.id = str(uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            models.storage.new(self)
+            storage.new(self)
 
     def save(self):
         """
-        Updates the public instance attribute; 'updated_at' with current datetime
+        Updates the public instance attribute;\
+             'updated_at' with current datetime
         """
         self.updated_at = datetime.now()
-        models.storage.save()
-    
+        storage.save()
+
     def to_dict(self):
         """
         Deserializes objects' fields to 'simple object types'
@@ -53,7 +55,8 @@ class BaseModel:
                 v = v.isoformat()
             s_dict[k] = v
         return s_dict
-                   
+
     def __str__(self):
         """Returns a human readable representation of the object"""
-        return "[{}] ({}) {}".format(type(self).__name__, self.id, self.__dict__)
+        return ("[{}] ({}) {}".format(type(self).__name__, self.id,
+                self.__dict__))

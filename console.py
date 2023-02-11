@@ -8,21 +8,15 @@ It provides an interface for fast and in-expensive interaction\
 import cmd
 from models import storage
 
+
 class HBNBCommand(cmd.Cmd):
     """
     Console class providing a command-line interface
     """
     __cache = storage.all()
     prompt = "(hbnb) "
-    def do_quit(self, _):
-        """Handles the quit command and exits program"""
-        quit()
 
-    def do_EOF(self, _):
-        """Handles programme termination on end-of-file"""
-        quit()
-
-    def do_create(self, args): 
+    def do_create(self, args):
         """
         Creates a new instance, saves it to JSON a file
             and prints its id
@@ -36,18 +30,18 @@ class HBNBCommand(cmd.Cmd):
             obj = HBNBCommand.__get_m_class(args[0])()
             obj.save()
             print(obj.id)
-                
+
     def do_show(self, args):
         """Prints the string repr of an instance based on class name and id
         args:
-            cls_name (str): __Classes' name 
+            cls_name (str): __Classes' name
             id (str): of an object
         """
         args = args.split()
         if HBNBCommand.__check_err(args, 2) is True:
             instance = HBNBCommand.__get_m_instance(args[0], args[1])
             print("{}".format(instance.__str__()))
-    
+
     def do_destroy(self, args):
         """Deletes an instance based on the class name and id
         args:
@@ -57,7 +51,7 @@ class HBNBCommand(cmd.Cmd):
         if HBNBCommand.__check_err(args, 2) is True:
             key = ".".join([args[0], args[1]])
             del HBNBCommand.__cache[key]
-            
+
     def do_all(self, args):
         """
         Prints all string repr of all instances based on the class name
@@ -86,7 +80,16 @@ class HBNBCommand(cmd.Cmd):
         """Overides implementation of empty+ENTER input"""
         pass
 
-    def __get_m_class(name):
+    def do_quit(self, _):
+        """Handles the quit command and exits program"""
+        quit()
+
+    def do_EOF(self, _):
+        """Handles programme termination on end-of-file"""
+        quit()
+
+    @classmethod
+    def __get_m_class(cls, name):
         """
         Returns a Model Class if present
         Args:
@@ -106,28 +109,45 @@ class HBNBCommand(cmd.Cmd):
             if name == ele:
                 return eval(ele)
         return None
-    def __get_m_instance(cls, id):
+
+    @classmethod
+    def __get_m_instance(cls, cls_name, id):
         """
         Returns object referenced by class and id else None
         Arg:
             cls: Class reference
             id: objects id
         """
-        cls = HBNBCommand.__get_m_class(cls)
-        objects = HBNBCommand.__cache
-        for _, v in objects.items():
-            if isinstance(v, cls) and v.id == id:
+        _cls = cls.__get_m_class(cls_name)
+        for _, v in cls.__cache.items():
+            if isinstance(v, _cls) and v.id == id:
                 return v
         return None
-    def __hasclass(_, name):
-        if HBNBCommand.__get_m_class(name) is None:
+
+    @classmethod
+    def __hasclass(cls, _, name):
+        """
+        Verifies if class name exists
+        Returns True if exists else False
+        """
+        if cls.__get_m_class(name) is None:
             return False
         return True
-    def __hasinstance(cls, id):
-        if HBNBCommand.__get_m_instance(cls, id) is None:
-            return False    
-        return True  
-    def __check_err(argv, fields):
+
+    @classmethod
+    def __hasinstance(cls, cls_name, id):
+        """
+        Checks if there is an instance of class and specified id
+        Args:
+            cls_name (str): Class name
+            id (str): Instance id
+        """
+        if cls.__get_m_instance(cls_name, id) is None:
+            return False
+        return True
+
+    @classmethod
+    def __check_err(cls, argv, fields):
         """
         Loops through argv checking for errors
         if error, prints it on console else returns
@@ -138,18 +158,18 @@ class HBNBCommand(cmd.Cmd):
             argv if no errors else False
         """
         errors = {
-            "0" : [ "** class name missing **", "** class doesn't exist **" ],
-            "1" : [ "** instance id missing **", "** no instance found **"],
-            "2" : [ "** attribute name missing **" ],
-            "3" : [ "** value missing **" ] 
+            "0": ["** class name missing **", "** class doesn't exist **"],
+            "1": ["** instance id missing **", "** no instance found **"],
+            "2": ["** attribute name missing **"],
+            "3": ["** value missing **"]
         }
         ops = {
-            "0" : HBNBCommand.__hasclass,
-            "1" : HBNBCommand.__hasinstance
+            "0": cls.__hasclass,
+            "1": cls.__hasinstance
         }
         id = 0
         op = False
-        
+
         if len(argv) == 0 and fields >= 1:
             print("{}".format(errors[str(id)][0]))
             return False
@@ -169,6 +189,7 @@ class HBNBCommand(cmd.Cmd):
                 print("{}".format(errors[str(id + 1)][0]))
                 return False
             return True
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

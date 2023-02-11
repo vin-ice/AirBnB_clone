@@ -3,6 +3,7 @@
 
 from models.base_model import BaseModel
 
+
 class Place(BaseModel):
     """Inherits from BaseClass
     Attributes:
@@ -17,7 +18,7 @@ class Place(BaseModel):
             price_by_night (int)
             latitude (float)
             longitude (float)
-            amenity_ids (list<str>): [Amenity.id] 
+            amenity_ids (list<str>): [Amenity.id]
     """
     city_id = ""
     user_id = ""
