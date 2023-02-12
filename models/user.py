@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Instantiates base class"""
+"""Provides a schema model for the user objects"""
 
 from models.base_model import BaseModel
 

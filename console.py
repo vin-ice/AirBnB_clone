@@ -5,9 +5,9 @@ It provides an interface for fast and in-expensive interaction\
     with the underlying structures
 """
 
-import cmd
+import cmd, ast
 from models import storage
-
+from re import match
 
 class HBNBCommand(cmd.Cmd):
     """
@@ -15,6 +15,40 @@ class HBNBCommand(cmd.Cmd):
     """
     __cache = storage.all()
     prompt = "(hbnb) "
+    use_rawinput = False
+
+    def _parse(line):
+        cp = line
+        _match = match("^(\w+)(?:\.)([a-z]+)(?:\(([^)]*)\))$", cp)
+        if _match is not None:
+            _cmd, _cls = str(_match.group(2)), str(_match.group(1))
+            if not _match.group(3) is None and str(_match.group(3)):
+                _args = str(_match.group(3))
+                _match = match(r"^((?:\'[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\'))(?:,\s)(.*)$", str(_args))
+                if _match is not None:
+                    _id = str(_match.group(1))
+                    if not _match.group(2) is None:
+                        _vals = str(_match.group(2))
+                        if isinstance(ast.literal_eval(_vals), dict):
+                            _val = []
+                            for k, v in ast.literal_eval(_vals).items():
+                                _val.append(" ".join([_cmd, _cls, _id, str(k),
+                                                    str(v)]))
+                            return " ; ".join(_val)
+                        else:
+                            _val, _vals = [_cmd, _cls, _id], _vals.split(", ")
+                            for i in _vals:
+                                _val.append(str(i))
+                            return " ".join(_val)
+    
+                    return " ".join([_cmd, _cls, _id])
+                return " ".join([_cmd, _cls, _args])
+            return " ".join([_cmd, _cls])
+        return line
+
+    def precmd(self, line):
+        line = HBNBCommand._parse(line)
+        return line
 
     def do_create(self, args):
         """
@@ -49,7 +83,7 @@ class HBNBCommand(cmd.Cmd):
         """
         args = args.split()
         if HBNBCommand.__check_err(args, 2) is True:
-            key = ".".join([args[0], args[1]])
+            key = ".".join([args[0], eval(args[1])])
             del HBNBCommand.__cache[key]
 
     def do_all(self, args):
@@ -75,6 +109,20 @@ class HBNBCommand(cmd.Cmd):
             obj = HBNBCommand.__get_m_instance(args[0], args[1])
             setattr(obj, k, v)
             obj.save()
+
+    def do_count(self, args):
+        """
+        Counts Number of instances of a given Class
+        Args:
+            args (str): class name
+        """
+        args = args.split()
+        if HBNBCommand.__check_err(args, 1):
+            count = 0
+            for _, v in HBNBCommand.__cache.items():
+                if isinstance(v, HBNBCommand.__get_m_class(args[0])):
+                    count += 1
+            print(count)
 
     def emptyline(self):
         """Overides implementation of empty+ENTER input"""
@@ -120,7 +168,7 @@ class HBNBCommand(cmd.Cmd):
         """
         _cls = cls.__get_m_class(cls_name)
         for _, v in cls.__cache.items():
-            if isinstance(v, _cls) and v.id == id:
+            if isinstance(v, _cls) and v.id == ast.literal_eval(id):
                 return v
         return None
 
