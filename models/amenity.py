@@ -10,6 +10,6 @@ class Amenity(BaseModel):
         public:
             name (str): name
     """
-    name = "", ""
+    name = ""
 
     pass

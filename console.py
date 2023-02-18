@@ -17,7 +17,6 @@ class HBNBCommand(cmd.Cmd):
     __cache = storage.all()
     prompt = "(hbnb) "
     use_rawinput = False
-    
 
     def _parse(line):
         """
@@ -70,7 +69,7 @@ class HBNBCommand(cmd.Cmd):
     def do_show(self, args):
         """Prints the string repr of an instance based on class name and id
         Args:
-            args: arguments 
+            args: arguments
         """
         args = args.split()
         if HBNBCommand.__check_err(args, 2) is True:
@@ -85,7 +84,7 @@ class HBNBCommand(cmd.Cmd):
         args = args.split()
         if HBNBCommand.__check_err(args, 2) is True:
             key = ".".join([args[0], eval(args[1])])
-            del(HBNBCommand.__cache[key])
+            del (HBNBCommand.__cache[key])
             storage.save()
 
     def do_all(self, args):
@@ -137,20 +136,20 @@ class HBNBCommand(cmd.Cmd):
     def do_EOF(self, _):
         """Quit command to exit the program"""
         return True
-    
+
     def help_quit(self):
         """
         Implements help for quit
         """
         print("Quit command to exit the program")
-        print()        
-    
+        print()
+
     def help_EOF(self):
         """
         Implements help for quit
         """
         print("Quit command to exit the program")
-        print()        
+        print()
 
     @classmethod
     def __get_m_class(cls, name):
@@ -182,9 +181,8 @@ class HBNBCommand(cmd.Cmd):
             cls: Class reference
             id: objects id
         """
-        _cls = cls.__get_m_class(cls_name)
-        for _, v in cls.__cache.items():
-            if v.__class__ == str(_cls) and v.id == ast.literal_eval(id):
+        for k, v in cls.__cache.items():
+            if (f"{cls_name}.{id}" == k):
                 return v
         return None
 
