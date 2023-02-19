@@ -6,9 +6,10 @@ It provides an interface for fast and in-expensive interaction\
 """
 
 import cmd
-import ast
 from models import storage
-
+import shlex
+import re
+from time import sleep
 
 class HBNBCommand(cmd.Cmd):
     """
@@ -16,40 +17,39 @@ class HBNBCommand(cmd.Cmd):
     """
     __cache = storage.all()
     prompt = "(hbnb) "
-    use_rawinput = False
-
-    def _parse(line):
-        """
-        Parses a function to a simple command line
-        Args:
-            line (str): Non-standeard command
-        """
-        parts = line.split(".")
-        _cls = parts[0]
-        _cmd = parts[1].split("(")[0]
-        _params = parts[1].split("(")[1].strip(")") .split(",")
-        if len(_params) >= 1:
-            _id = _params[0]
-            if len(_params) > 1:
-                _args = ",".join(_params[1:]).strip()
-                if '{' in _args:
-                    _val = []
-                    for k, v in ast.literal_eval(_args).items():
-                        _val.append(" ".join([_cmd, _cls, _id, k, str(v)]))
-                    return (" ; ".join(_val))
-                else:
-                    _val, _vals = [_cmd, _cls, _id], _args.split(",")
-                    for i in _vals:
-                        _val.append(str(i))
-                    return (" ".join(_val))
-            return (" ".join([_cmd, _cls, _id]))
-        else:
-            return (" ".join([_cmd, _cls]))
 
     def precmd(self, line):
-        if "." in line:
-            return HBNBCommand._parse(line)
-        return line
+        """Default behavior for cmd module when input is invalid"""
+        pattern = re.compile(r"(\w+)\.(\w+)\((.*)\)")
+        match_list = pattern.findall(line)
+        if not match_list:
+            return line
+    
+        match_tuple = match_list[0]
+        if len(match_tuple) >= 2:
+            _cls = match_tuple[0]
+            _cmd = match_tuple[1]
+        if not match_tuple[2]:
+            return "{} {}".format(_cmd, _cls)
+        else:
+            args = match_tuple[2].split(", ")
+            if len(args) == 1:
+                _id = re.sub("[\"\']", "", match_tuple[2])
+                return "{} {} {}".format(_cmd, _cls, _id)
+            else:
+                match_dict = re.findall(r"{.*}", match_tuple[2])
+                if (match_dict):
+                    _id = re.sub("[\"\']", "", args[0])
+                    _line = "{} {} {}".format(_cmd, _cls, _id)
+                    for arg in (re.sub("[\{\:\}]", "",
+                                match_dict[0]).split(', ')):
+                        _line += " " + arg
+                        self.onecmd(_line)
+                    return ""
+                return "{} {} {} {} {}".format(
+                    _cmd, _cls,
+                    re.sub("[\"\']", "", args[0]),
+                    re.sub("[\"\']", "", args[1]), args[2])
 
     def do_create(self, args):
         """
@@ -60,7 +60,7 @@ class HBNBCommand(cmd.Cmd):
         Usage:
             create <class>
         """
-        args = args.split()
+        args = shlex.split(args)
         if HBNBCommand.__check_err(args, 1) is True:
             obj = HBNBCommand.__get_m_class(args[0])()
             obj.save()
@@ -71,7 +71,7 @@ class HBNBCommand(cmd.Cmd):
         Args:
             args: arguments
         """
-        args = args.split()
+        args = shlex.split(args)
         if HBNBCommand.__check_err(args, 2) is True:
             instance = HBNBCommand.__get_m_instance(args[0], args[1])
             print("{}".format(instance.__str__()))
@@ -81,9 +81,9 @@ class HBNBCommand(cmd.Cmd):
         args:
             args (str): Arguments
         """
-        args = args.split()
+        args = shlex.split(args)
         if HBNBCommand.__check_err(args, 2) is True:
-            key = ".".join([args[0], eval(args[1])])
+            key = ".".join([args[0], args[1]])
             del (HBNBCommand.__cache[key])
             storage.save()
 
@@ -91,20 +91,20 @@ class HBNBCommand(cmd.Cmd):
         """
         Prints all string repr of all instances based on the class name
         """
-        args = args.split()
+        args = shlex.split(args)
         if len(args) == 0:
             for _, v in HBNBCommand.__cache.items():
                 print(v.__str__())
         elif HBNBCommand.__check_err(args, 1) is True:
-            for _, v in HBNBCommand.__cache.items():
-                if isinstance(v, HBNBCommand.__get_m_class(args[0])):
+            for k, v in HBNBCommand.__cache.items():
+                if k.split('.')[0] == args[0]:
                     print("{}".format(v.__str__()))
 
     def do_update(self, args):
         """
         Updates an instance based on class name and id
         """
-        args = args.split()
+        args = shlex.split(args)
         if HBNBCommand.__check_err(args, 4):
             k, v = args[2], args[3]
             obj = HBNBCommand.__get_m_instance(args[0], args[1])
@@ -117,7 +117,7 @@ class HBNBCommand(cmd.Cmd):
         Args:
             args (str): class name
         """
-        args = args.split()
+        args = shlex.split(args)
         if HBNBCommand.__check_err(args, 1):
             count = 0
             for _, v in HBNBCommand.__cache.items():
