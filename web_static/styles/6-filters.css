@@ -2,19 +2,20 @@
     background-color: white;
     height: 70px;
     width: 100%;
-    border: 4px solid #DDDDDD;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
 }
 
 /* Locations and Amenities */
 .locations, .amenities {
-    float: left;    
+    display: inline-block;  
     height: 100%;
     width: 25%;
-    padding: 10px 10px 10px 10px;
     border: 1px solid red;
 }
-.locations:hover .popover, .amenities:hover .popover {
-       visibility: visible;
+.locations:hover .popover,
+.amenities:hover .popover {
+    visibility: visible;
 }
 .filters div:first-child
 {
@@ -22,28 +23,34 @@
 }
 .locations h3, .amenities h3 {
     font-weight: 600;
-    margin: 0;
+    border: 1px solid green;
 }
 .locations h4, .amenities h4 {
     font-weight: 400;
     font-size: 14px;
-    margin: 0;
+    border: 1px solid blue;
 }
 .popover {
-    position: relative;
-    
+    position: absolute;
     visibility: hidden;  
     background-color: #FAFAFA;
     border: 1px solid #DDDDDD;
     border-radius: 4px;
     margin: 0;
+    width: 100px;
 }
 .popover, .popover ul {
     list-style: none;
 }
 
+.filters h2,
+.filters h3,
+.filters h4 {
+    box-sizing: border-box;
+    margin: 0;
+}
 /* Search button */
-#search {
+.filters button {
     position: absolute;
     background-color: #FF5A5F;
     font-size: 18px;
@@ -57,7 +64,7 @@
     bottom: 0;
     margin: auto 0;
 }
-#search:hover {
+.filters button:hover {
     opacity: 90%;
 }
 

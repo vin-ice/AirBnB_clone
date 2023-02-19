@@ -5,8 +5,9 @@ body {
     font-size: 14px;
     font-family: Circular, "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
-body, div,section {
+body, div, section, h3, h4 {
     box-sizing: border-box;
+
 }
 
 .container {

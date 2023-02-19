@@ -2,12 +2,13 @@
     background-color: white;
     height: 70px;
     width: 100%;
-    border: 4px solid #DDDDDD;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
 }
 
 /* Locations and Amenities */
 .locations, .amenities {
-    float: left;
+    display: inline-block;
     height: 100%;
     width: 25%;
     padding: 10px 10px 10px 10px;
@@ -27,7 +28,7 @@
 }
 
 /* Search button */
-#search {
+.filters button {
     position: absolute;
     background-color: #FF5A5F;
     font-size: 18px;
@@ -41,6 +42,6 @@
     bottom: 0;
     margin: auto 0;
 }
-#search:hover {
+.filters button:hover {
     opacity: 90%;
 }
